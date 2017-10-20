@@ -9,9 +9,9 @@ from mlbenchmark.environment import Environment
 from .support import ResultCollector
 
 ENVIRONMENTS = [
-    ("local-baseline", "http://localhost:5000/baseline/predict_digits/"),
-    ("local-svm", "http://localhost:5001/svm/predict_digits/"),
-    ("local-forest", "http://localhost:5002/forest/predict_digits/"),
+    ("local-python-baseline",   "http://localhost:5000/baseline/predict_digits/"),
+    ("local-python-svm",        "http://localhost:5001/svm/predict_digits/"),
+    ("local-python-forest",     "http://localhost:5002/forest/predict_digits/"),
     ]
 
 SCENARIOS =[
