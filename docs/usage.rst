@@ -2,6 +2,6 @@
 Usage
 ========
 
-To use ML Pipeline benchmarking in a project::
+To run the ML Pipeline benchmarking::
 
-	import mlbenchmark
+	$py.test
