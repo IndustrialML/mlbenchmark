@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 @app.route("/svm/predict_digits/", methods=["POST"])
 def predict_digit():
-    request_data = request.get_data()
+    request_data = request.get_json()
     image = get_image(request_data)
 
     pred = model.predict(image.reshape(1, -1))
@@ -19,9 +19,10 @@ def predict_digit():
 
 def prepare_model():
 
-    digits = datasets.load_digits()
+    digits = datasets.fetch_mldata('MNIST original')
+
     classifier = svm.SVC(gamma=0.001)
-    x_train, x_test, y_train, y_test = model_selection.train_test_split(digits.images, digits.target,
+    x_train, x_test, y_train, y_test = model_selection.train_test_split(digits.data, digits.target,
                                                                         test_size=0.33, random_state=42)
     train_reshape = x_train.reshape(((len(x_train)), -1))
     classifier.fit(train_reshape, y_train)

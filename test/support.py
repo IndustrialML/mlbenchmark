@@ -1,4 +1,5 @@
 from collections import defaultdict, OrderedDict
+from datetime import datetime
 
 import pandas as pd
 
@@ -18,8 +19,10 @@ class ResultCollector(object):
 
         with open("report.html", "w") as fp:
             fp.write("<html><body>")
+            fp.write("<h1>Results %s</h1>"%datetime.now())
+
             for scenario in scenarios:
-                fp.write("<h1>%s</h1>"%scenario)
+                fp.write("<h2>%s</h2>"%scenario)
 
                 results = [self.results[scenario][env] for env in envs]
                 df = pd.DataFrame(results, columns=results[0]._fields)

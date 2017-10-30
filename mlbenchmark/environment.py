@@ -10,8 +10,7 @@ class Environment(object):
     def call(self, data):
         response = requests.post(self.url,
                                  headers=self.headers,
-                                 data=self.preprocess_payload(data)
-                                 # json=self.preprocess_payload(data)
+                                 json=self.preprocess_payload(data)
         )
 
         if response.status_code == 200:

@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route("/baseline/predict_digits/", methods=["POST"])
 def predict_digit():
-    request_data = request.get_data()
+    request_data = request.get_json()
     image = get_image(request_data)
 
     return "%s"%np.random.randint(0, 9)
