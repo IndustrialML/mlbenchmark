@@ -9,9 +9,10 @@ from mlbenchmark.environment import Environment
 from .support import ResultCollector
 
 ENVIRONMENTS = [
-    ("local-python-baseline",   "http://localhost:5000/baseline/predict_digits/"),
-    # ("local-python-svm",        "http://localhost:5001/svm/predict_digits/"),
-    ("local-python-forest",     "http://localhost:5002/forest/predict_digits/"),
+    dict(name="local-python-baseline", endpoint="http://localhost:5000/baseline/predict_digits/"),
+    #dict(name="local-python-svm",     endpoint="http://localhost:5001/svm/predict_digits/"),
+    dict(name="local-python-forest",   endpoint="http://localhost:5002/forest/predict_digits/"),
+    # dict(name="azure-R-forest",   endpoint="http://xxx:yyy/forest/predict_digits/", username="zzz", password="adsf"),
     ]
 
 SCENARIOS =[
@@ -52,7 +53,7 @@ def result_collector():
 
 @pytest.mark.parametrize("env", ENVIRONMENTS)
 def test_mnist_digists(scenario, env, result_collector):
-    env = MNistEnvironment(*env)
+    env = MNistEnvironment(**env)
     result = scenario.benchmark(env)
 
     result_collector.collect(scenario, env, result)

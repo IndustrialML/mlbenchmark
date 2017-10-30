@@ -2,14 +2,17 @@ import requests
 
 class Environment(object):
 
-    def __init__(self, name, endpoint, header=None):
+    def __init__(self, name, endpoint, header=None, username=None, password=None):
         self.name = name
         self.url = endpoint
         self.headers = header if header is not None else {}
+        self.auth = (username, password) if username and password else None
+
 
     def call(self, data):
         response = requests.post(self.url,
                                  headers=self.headers,
+                                 auth=self.auth,
                                  json=self.preprocess_payload(data)
         )
 
