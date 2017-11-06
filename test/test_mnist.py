@@ -41,7 +41,8 @@ class MSRServerMNistEnv(Environment):
 
     def preprocess_response(self, response):
         payload = response.json()
-        return payload["outputParameters"]["label"]
+        label = payload["outputParameters"]["label"]
+        return int(label)
 
 
 ENVIRONMENTS = [
