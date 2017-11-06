@@ -36,9 +36,9 @@ class AccuracyBenchmark(BenchmarkScenario):
 
 
 def timing_wrapper(env, data):
-    t0 = time.clock()
+    t0 = time.time()
     env.call(data)
-    t1 = time.clock()
+    t1 = time.time()
     return (t1 - t0)
 
 
