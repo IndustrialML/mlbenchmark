@@ -1,5 +1,6 @@
 import json
 import pytest
+import requests
 from sklearn.datasets import fetch_mldata
 from sklearn.model_selection import train_test_split
 
@@ -8,11 +9,49 @@ from mlbenchmark.data import DataProvider
 from mlbenchmark.environment import Environment
 from .support import ResultCollector
 
+
+class MNistEnvironment(Environment):
+
+    def preprocess_payload(self, data):
+        return data.flatten().tolist()
+
+
+class MSRServerMNistEnv(Environment):
+
+    def __init__(self, name, endpoint, login_endpoint, username, password):
+        header = self.create_auth_header(login_endpoint, username, password)
+        super(MSRServerMNistEnv, self).__init__(name, endpoint, header=header)
+
+    def create_auth_header(self, login_endpoint, username, password):
+        response = requests.post(login_endpoint,
+                                headers={"Content-Type": "application/json"},
+                                json={"username": username,
+                                      "password": password}
+                                ).json()
+
+        token = response["access_token"]
+
+        return {"Authorization": "Bearer %s"%token,
+                "Content-Type": "application/json"}
+
+    def preprocess_payload(self, data):
+        return {"dataframe_transp": {
+            "image": data.flatten().tolist()
+        }}
+
+    def preprocess_response(self, response):
+        payload = response.json()
+        return payload["outputParameters"]["label"]
+
+
 ENVIRONMENTS = [
-    dict(name="local-python-baseline", endpoint="http://localhost:5000/baseline/predict_digits/"),
-    #dict(name="local-python-svm",     endpoint="http://localhost:5001/svm/predict_digits/"),
-    dict(name="local-python-forest",   endpoint="http://localhost:5002/forest/predict_digits/"),
-    # dict(name="azure-R-forest",   endpoint="http://xxx:yyy/forest/predict_digits/", username="zzz", password="adsf"),
+    # MNistEnvironment("local-python-baseline", endpoint="http://localhost:5000/baseline/predict_digits/"),
+    # MNistEnvironment("local-python-svm",     endpoint="http://localhost:5001/svm/predict_digits/"),
+    # MNistEnvironment("local-python-forest",   endpoint="http://localhost:5002/forest/predict_digits/"),
+    MSRServerMNistEnv("MS R Server small",
+                      "http://lin-op-vm.westeurope.cloudapp.azure.com:12800/api/modelSmall_transp/v1.0.0",
+                      "http://lin-op-vm.westeurope.cloudapp.azure.com:12800/login",
+                      username="admin", password="PwF/uOnBo1"),
     ]
 
 SCENARIOS =[
@@ -21,11 +60,6 @@ SCENARIOS =[
     scenario.ConcurrentLoadBenchmark
     ]
 
-
-class MNistEnvironment(Environment):
-
-    def preprocess_payload(self, data):
-        return json.dumps(data.flatten().tolist())
 
 
 @pytest.fixture
@@ -53,7 +87,6 @@ def result_collector():
 
 @pytest.mark.parametrize("env", ENVIRONMENTS)
 def test_mnist_digists(scenario, env, result_collector):
-    env = MNistEnvironment(**env)
     result = scenario.benchmark(env)
 
     result_collector.collect(scenario, env, result)
