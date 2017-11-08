@@ -13,7 +13,7 @@ class Environment(object):
                                  json=self.preprocess_payload(data)
         )
 
-        if response.status_code == 200 : #| response.status_code == 201:
+        if response.status_code == 200 : 
             return self.preprocess_response(response)
 
         else:
