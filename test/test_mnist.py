@@ -34,11 +34,11 @@ class OpencpuMNistEnv(Environment):
     def preprocess_payload(self, data):
 	    return { "image": data.flatten().tolist()}
 		
-class MSRServerMNistEnv(Environment):
+class MSMLServerMNistEnv(Environment):
 
     def __init__(self, name, endpoint, login_endpoint, username, password):
         header = self.create_auth_header(login_endpoint, username, password)
-        super(MSRServerMNistEnv, self).__init__(name, endpoint, header=header)
+        super(MSMLServerMNistEnv, self).__init__(name, endpoint, header=header)
 
     def create_auth_header(self, login_endpoint, username, password):
         response = requests.post(login_endpoint,
@@ -65,27 +65,30 @@ class MSRServerMNistEnv(Environment):
 
 ENVIRONMENTS = [
     # MNistEnvironment("local-python-baseline", endpoint="http://localhost:5000/baseline/predict_digits/"),
-    # MNistEnvironment("local-python-svm",     endpoint="http://localhost:5001/svm/predict_digits/"),
-    # MNistEnvironment("local-python-forest",   endpoint="http://localhost:5002/forest/predict_digits/"),
-     MNistEnvironment("R-plumber-local-empty", endpoint="http://localhost:8080/predictemptypkg"),
-	 MNistEnvironment("R-plumber-local-small", endpoint="http://localhost:8080/predictsmallpkg"),
-	 MNistEnvironment("R-plumber-local-large", endpoint="http://localhost:8080/predictlargepkg"),
-	# MNistEnvironment("R-plumber-vm-empty", endpoint="http://lin-op-vm.westeurope.cloudapp.azure.com:8080/predictemptypkg"),
-	# MNistEnvironment("R-plumber-vm-small", endpoint="http://lin-op-vm.westeurope.cloudapp.azure.com:8080/predictsmallpkg"),
-	# MNistEnvironment("R-plumber-vm-large", endpoint="http://lin-op-vm.westeurope.cloudapp.azure.com:8080/predictlargepkg"),
+    # MNistEnvironment("local-python-svm", endpoint="http://localhost:5001/svm/predict_digits/forest_50"),
+    # MNistEnvironment("local-python-forest", endpoint="http://localhost:5002/forest/predict_digits/"),
+	MNistEnvironment("python-vm-baseline", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8003/predict"),
+    MNistEnvironment("python-vm-forest_50", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8004/predict"),
+    MNistEnvironment("python-vm-forest_500", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8005/predict"),
+    # MNistEnvironment("R-plumber-local-empty", endpoint="http://localhost:8080/predictemptypkg"),
+	# MNistEnvironment("R-plumber-local-small", endpoint="http://localhost:8080/predictsmallpkg"),
+	# MNistEnvironment("R-plumber-local-large", endpoint="http://localhost:8080/predictlargepkg"),
+	# MNistEnvironment("R-plumber-vm-empty", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8080/predictemptypkg"),
+	# MNistEnvironment("R-plumber-vm-small", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8080/predictsmallpkg"),
+	# MNistEnvironment("R-plumber-vm-large", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8080/predictlargepkg"),
 	# OpencpuMNistEnv("R-opencpu-local-empty", endpoint="http://localhost:80/ocpu/library/digiterEmpty/R/predict_digit_empty/json"),
 	# OpencpuMNistEnv("R-opencpu-local-small", endpoint="http://localhost:80/ocpu/library/digiterSmall/R/predict_digit_small/json"),
 	# OpencpuMNistEnv("R-opencpu-local-large", endpoint="http://localhost:80/ocpu/library/digiterLarge/R/predict_digit_large/json"),
-	# OpencpuMNistEnv("R-opencpu-vm-empty", endpoint="http://lin-op-vm.westeurope.cloudapp.azure.com:80/ocpu/library/digiterEmpty/R/predict_digit_empty/json/"),
-	# OpencpuMNistEnv("R-opencpu-vm-small", endpoint="http://lin-op-vm.westeurope.cloudapp.azure.com:80/ocpu/library/digiterSmall/R/predict_digit_small/json/"),
-	# OpencpuMNistEnv("R-opencpu-vm-large", endpoint="http://lin-op-vm.westeurope.cloudapp.azure.com:80/ocpu/library/digiterLarge/R/predict_digit_large/json/"),
-    # MSRServerMNistEnv("MS R Server small", 
-    #                  "http://lin-op-vm.westeurope.cloudapp.azure.com:12800/api/modelSmall_transp/v1.0.0",
-    #                  "http://lin-op-vm.westeurope.cloudapp.azure.com:12800/login", 
+	# OpencpuMNistEnv("R-opencpu-vm-empty", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:80/ocpu/library/digiterEmpty/R/predict_digit_empty/json/"),
+	# OpencpuMNistEnv("R-opencpu-vm-small", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:80/ocpu/library/digiterSmall/R/predict_digit_small/json/"),
+	# OpencpuMNistEnv("R-opencpu-vm-large", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:80/ocpu/library/digiterLarge/R/predict_digit_large/json/"),
+    # MSMLServerMNistEnv("MS ML Server small", 
+    #                  "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/api/modelSmall_transp/v1.0.0",
+    #                  "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/login", 
 	#                  username="admin", password="PwF/uOnBo1"),
-	# MSRServerMNistEnv("MS R Server empty",
-    #                  "http://lin-op-vm.westeurope.cloudapp.azure.com:12800/api/modelEmpty/v1.0.0",
-    #                  "http://lin-op-vm.westeurope.cloudapp.azure.com:12800/login",
+	# MSMLServerMNistEnv("MS ML Server empty",
+    #                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/api/modelEmpty/v1.0.0",
+    #                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/login",
     #                  username="admin", password="PwF/uOnBo1"),
 					  
     ]
@@ -99,8 +102,8 @@ SCENARIOS =[
 @pytest.fixture
 def mnist_digits():
     mnist = fetch_mldata('MNIST original')
-    data = mnist.data[:2000]
-    target = mnist.target[:2000]
+    data = mnist.data[:2]
+    target = mnist.target[:2]
     _, x_test, _, y_test = train_test_split(data, target, test_size = 0.33, random_state = 42)
     return DataProvider(x_test, y_test)
 
