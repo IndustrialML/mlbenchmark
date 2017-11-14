@@ -63,13 +63,31 @@ class MSMLServerMNistEnv(Environment):
         return int(label)
 
 
+class MSMLServerRealtimeMNistEnv(MSMLServerMNistEnv):
+
+    def preprocess_payload(self, data):
+        encoded_image = {}
+		
+        for i, entry in enumerate(data.flatten().tolist()):
+            encoded_image["V%s"%(i+1)] = [entry]
+	
+        return {"inputData": encoded_image}
+
+    def preprocess_response(self, response):
+        payload = response.json()
+        label = payload["outputParameters"]["outputData"]["Y_Pred"][0]
+        return int(label)
+
+
+
+
 ENVIRONMENTS = [
     # MNistEnvironment("local-python-baseline", endpoint="http://localhost:5000/baseline/predict_digits/"),
     # MNistEnvironment("local-python-svm", endpoint="http://localhost:5001/svm/predict_digits/forest_50"),
     # MNistEnvironment("local-python-forest", endpoint="http://localhost:5002/forest/predict_digits/"),
-	MNistEnvironment("python-vm-baseline", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8003/predict"),
-    MNistEnvironment("python-vm-forest_50", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8004/predict"),
-    MNistEnvironment("python-vm-forest_500", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8005/predict"),
+	# MNistEnvironment("python-vm-baseline", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8003/predict"),
+    #MNistEnvironment("python-vm-forest_50", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8004/predict"),
+    #MNistEnvironment("python-vm-forest_500", endpoint="http://lin-mlserver.westeurope.cloudapp.azure.com:8005/predict"),
     # MNistEnvironment("R-plumber-local-empty", endpoint="http://localhost:8080/predictemptypkg"),
 	# MNistEnvironment("R-plumber-local-small", endpoint="http://localhost:8080/predictsmallpkg"),
 	# MNistEnvironment("R-plumber-local-large", endpoint="http://localhost:8080/predictlargepkg"),
@@ -90,7 +108,14 @@ ENVIRONMENTS = [
     #                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/api/modelEmpty/v1.0.0",
     #                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/login",
     #                  username="admin", password="PwF/uOnBo1"),
-					  
+	MSMLServerRealtimeMNistEnv("MS ML Server Realtime small",
+	                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/api/rxDModelsmall/v1.0.0",
+                     "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/login",
+                      username="admin", password="PwF/uOnBo1"),	
+    MSMLServerRealtimeMNistEnv("MS ML Server Realtime large",
+	                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/api/rxDModellarge/v1.0.0",
+                     "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/login",
+                      username="admin", password="PwF/uOnBo1"),			  
     ]
 
 SCENARIOS =[
@@ -102,8 +127,8 @@ SCENARIOS =[
 @pytest.fixture
 def mnist_digits():
     mnist = fetch_mldata('MNIST original')
-    data = mnist.data[:2]
-    target = mnist.target[:2]
+    data = mnist.data[:10]
+    target = mnist.target[:10]
     _, x_test, _, y_test = train_test_split(data, target, test_size = 0.33, random_state = 42)
     return DataProvider(x_test, y_test)
 
