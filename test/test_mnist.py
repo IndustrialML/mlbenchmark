@@ -1,8 +1,8 @@
 import json
+import numpy as np
 import pytest
 import requests
 from sklearn.datasets import fetch_mldata
-from sklearn.model_selection import train_test_split
 
 from mlbenchmark import scenario
 from mlbenchmark.data import DataProvider
@@ -19,21 +19,10 @@ class OpencpuMNistEnv(Environment):
     def __init__(self, name, endpoint):
         super().__init__(name, endpoint, {"Content-Type": "application/json"})
 
-    def call(self, data):
-        response = requests.post(self.url,
-                                 headers=self.headers,
-                                 json=self.preprocess_payload(data)
-        )
-
-        if response.status_code == 200 | response.status_code == 201:
-            return self.preprocess_response(response)
-
-        else:
-            return None
-
     def preprocess_payload(self, data):
-	    return { "image": data.flatten().tolist()}
-		
+        return { "image": data.flatten().tolist()}
+
+
 class MSMLServerMNistEnv(Environment):
 
     def __init__(self, name, endpoint, login_endpoint, username, password):
@@ -111,11 +100,11 @@ ENVIRONMENTS = [
 	MSMLServerRealtimeMNistEnv("MS ML Server Realtime small",
 	                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/api/rxDModelsmall/v1.0.0",
                      "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/login",
-                      username="admin", password="PwF/uOnBo1"),	
+                      username="admin", password="PwF/uOnBo1"),
     MSMLServerRealtimeMNistEnv("MS ML Server Realtime large",
 	                 "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/api/rxDModellarge/v1.0.0",
                      "http://lin-mlserver.westeurope.cloudapp.azure.com:12800/login",
-                      username="admin", password="PwF/uOnBo1"),			  
+                      username="admin", password="PwF/uOnBo1"),
     ]
 
 SCENARIOS =[
@@ -127,9 +116,12 @@ SCENARIOS =[
 @pytest.fixture
 def mnist_digits():
     mnist = fetch_mldata('MNIST original')
-    data = mnist.data[:2000]
-    target = mnist.target[:2000]
-    _, x_test, _, y_test = train_test_split(data, target, test_size = 0.33, random_state = 42)
+
+    size = 10
+    idx = np.random.choice(mnist.data.shape[0], size)
+    x_test = mnist.data[idx]
+    y_test = mnist.target[idx]
+
     return DataProvider(x_test, y_test)
 
 

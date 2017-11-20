@@ -8,7 +8,7 @@ from sklearn import metrics
 from collections import namedtuple
 
 AccuracyResult = namedtuple("AccuracyResult", ["accuracy", "jaccard"])
-TimingResult = namedtuple("TimingResult", ["mean", "median", "min", "max", "std", "geomean"])
+TimingResult = namedtuple("TimingResult", ["count", "mean", "median", "min", "max", "std", "geomean"])
 
 class BenchmarkScenario(object):
 
@@ -28,6 +28,10 @@ class AccuracyBenchmark(BenchmarkScenario):
         preds = []
         for x_test, y_test in self.data_provider:
             pred = env.call(x_test)
+
+            if pred is None:
+                pred = -1
+
             preds.append(pred)
 
         return AccuracyResult(metrics.accuracy_score(y_true, preds),
@@ -45,8 +49,9 @@ def timing_wrapper(env, data):
 class TimingBenchmark(BenchmarkScenario):
 
     def process_timings(self, timings):
-        timings = np.array(timings)
-        return TimingResult(np.mean(timings),
+        timings = np.array([t for t in timings if t is not None])
+        return TimingResult(len(timings),
+                            np.mean(timings),
                             np.median(timings),
                             np.min(timings),
                             np.max(timings),

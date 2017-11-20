@@ -1,5 +1,6 @@
 import requests
 
+
 class Environment(object):
 
     def __init__(self, name, endpoint, header=None):
@@ -8,16 +9,19 @@ class Environment(object):
         self.headers = header if header is not None else {}
 
     def call(self, data):
-        response = requests.post(self.url,
-                                 headers=self.headers,
-                                 json=self.preprocess_payload(data)
-        )
+        try:
+            response = requests.post(self.url,
+                                     headers=self.headers,
+                                     json=self.preprocess_payload(data)
+            )
 
-        if response.status_code == 200 : 
-            return self.preprocess_response(response)
+            if response.status_code in [200, 201] :
+                return self.preprocess_response(response)
 
-        else:
-            return None
+        except:
+            pass
+
+        return None
 
     def preprocess_response(self, response):
         return response.json()
