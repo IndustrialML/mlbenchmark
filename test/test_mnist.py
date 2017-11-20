@@ -127,8 +127,8 @@ SCENARIOS =[
 @pytest.fixture
 def mnist_digits():
     mnist = fetch_mldata('MNIST original')
-    data = mnist.data[:10]
-    target = mnist.target[:10]
+    data = mnist.data[:2000]
+    target = mnist.target[:2000]
     _, x_test, _, y_test = train_test_split(data, target, test_size = 0.33, random_state = 42)
     return DataProvider(x_test, y_test)
 
