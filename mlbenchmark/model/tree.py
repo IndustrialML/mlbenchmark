@@ -1,7 +1,7 @@
 from flask import Flask, request
 from sklearn import datasets, ensemble , model_selection
 
-from model import get_image
+from mlbenchmark.model import get_image
 
 model = None
 

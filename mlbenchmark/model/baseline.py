@@ -2,7 +2,7 @@ from flask import Flask, request
 import numpy as np
 import pickle
 
-from model import get_image
+from mlbenchmark.model import get_image
 
 app = Flask(__name__)
 
